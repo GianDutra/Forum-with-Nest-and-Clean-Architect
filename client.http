@@ -1,42 +1,27 @@
-@baseUrl = http://localhost:3333
-@authToken = {{authenticate.response.body.access_token}}
+import { Module } from '@nestjs/common'
+import { ConfigModule } from '@nestjs/config'
+import { PrismaService } from './prisma/prisma.service'
+import { envSchema } from '@/env'
+import { AuthModule } from './auth/auth.module'
+import { CreateAccountController } from './controllers/create-account.controller'
+import { AuthenticateController } from './controllers/authenticate.controller'
+import { CreateQuestionController } from './controllers/create-question.controller'
+import { FetchRecentQuestionsController } from './controllers/fetch-recent-questions.controller'
 
-# @name create_account
-POST {{baseUrl}}/accounts
-Content-Type: application/json
-
-{
-  "name": "Gian Vitor",
-  "email": "gian@outlook.com.br",
-  "password": "123456"
-}
-
-###
-
-# @name authenticate
-POST {{baseUrl}}/sessions
-Content-Type: application/json
-
-{
-  "email": "gian@outlook.com.br",
-  "password": "123456"
-}
-
-###
-
-# @name create_question
-POST {{baseUrl}}/questions
-Content-Type: application/json
-Authorization: Bearer {{authToken}}
-
-{
-  "title": "Nova pergunta 2",
-  "content": "Teste"
-}
-
-###
-
-# @name fetch_recent_questions
-GET {{baseUrl}}/questions?page=2
-Content-Type: application/json
-Authorization: Bearer {{authToken}}
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      validate: (env) => envSchema.parse(env),
+      isGlobal: true,
+    }),
+    AuthModule,
+  ],
+  controllers: [
+    CreateAccountController,
+    AuthenticateController,
+    CreateQuestionController,
+    FetchRecentQuestionsController,
+  ],
+  providers: [PrismaService],
+})
+export class AppModule {}
